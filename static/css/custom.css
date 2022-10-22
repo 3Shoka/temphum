@@ -1,0 +1,16 @@
+.warn{
+    background-color: #ffc107;
+    color: whitesmoke;
+}
+.crit{
+    background-color: #dc3545;
+    color: whitesmoke;
+}
+.info{
+    background-color: #0dcaf0;
+    color: whitesmoke;
+}
+.ok{
+    background-color: #20c997;
+    color: whitesmoke;
+}

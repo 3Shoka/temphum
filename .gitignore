@@ -28,3 +28,4 @@ htmlcov/
 __pycache__/
 
 instance/
+config.json

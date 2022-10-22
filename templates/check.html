@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Ashokani">
+    <title>Flask App</title>
+
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+
+</head>
+
+<body>
+
+    <header>
+        <div class="px-3 py-2 text-bg-dark">
+            <div class="container-fluid">
+                <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                    <a href="/"
+                        class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
+                        Ashz, Inc
+                    </a>
+
+                    <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+                        <li>
+                            <a href="/index" class="nav-link text-secondary">
+                                <span data-feather="home"></span>
+                                Home
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/check" class="nav-link text-white">
+                                <span data-feather="bell"></span>
+                                Notifikasi
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link text-white">
+                                <span data-feather="user"></span>
+                                Profil
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link text-white">
+                                <span data-feather="log-out"></span>
+                                Keluar
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <main class="col-md-12 ms-sm-auto px-md-4">
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 my-3 border-bottom">
+                    <h3>Status Notifikasi</h3>
+                </div>
+                <div class="data">
+                    {% for check in checks %}
+                    <div class="card mb-2">
+                        <div class="card-header">
+                            <strong>{{ check.name }}</strong>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ check.description }}</p>
+                            {% if check.type == 'deadman' %}
+                                <p>Jangka waktu <strong>{{ check.time_since }}</strong>. Berhenti mengirim notifikasi setelah <strong>{{ check.stale_time }}</strong></p>
+                                <p>Level: <strong>{{ check.level }}</strong></p>
+                            {% else %}
+                                <p>Jika {% for t in check.tags %} {{ t.key }} {{ t.value }} {% endfor %}:</p>
+                                <ul class="list-group list-group-flush">
+                                    {% for batas in check.thresholds|sort(attribute='type') %}
+                                        {% if batas.type == 'greater' %}
+                                            <li class="list-group-item">Lebih besar dari <span class="badge text-bg-secondary">{{ batas.value }}</span>, maka status <span class="badge {{ batas.level|lower }}">{{ batas.level }}</span></li>
+                                        {% elif batas.type == 'lesser' %}
+                                            <li class="list-group-item">Lebih kecil dari <span class="badge text-bg-secondary">{{ batas.value }}</span>, maka status <span class="badge {{ batas.level|lower }}">{{ batas.level }}</span></li>
+                                        {% elif batas.type == 'range' %}
+                                            <li class="list-group-item">Diantara <span class="badge text-bg-secondary">{{ batas.min }}</span> - <span class="badge text-bg-secondary">{{ batas.max }}</span>, maka status <span class="badge {{ batas.level|lower }}">{{ batas.level }}</span></li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            
+                            <!-- <p>Terakhir dijalankan: <strong>{{ check.latest_completed }}</strong> dengan status <strong>{{ check.last_run_status }}</strong> </p>
+                            <p>Pesan kesalahan: <em>{{ check.last_run_error }}</em> </p> -->
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 my-3 border-bottom">
+                    <h2 class="h3">Notif Rules</h2>
+                </div>
+                <div class="data">
+                    <pre>
+                        {% for rule in notif_rules %}
+                        {{ rule.name }}
+                        {{ rule.type }}
+                        {{ rule.to_dict() }}
+                        {% endfor %}
+                    </pre>
+                </div>
+                <div
+                    class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                    <h2 class="h3">Endpoint</h2>
+                </div>
+                <div class="data">
+                    <pre>
+                        {% for ep in endpoints %}
+                        {{ ep.name }}
+                        {{ ep.type }}
+                        {{ ep.to_dict() }}
+                        {% endfor %}
+                    </pre>
+                </div>
+            </main>
+        </div>
+    </div>
+    <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <div class="col-md-4 d-flex align-items-center">
+            <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
+                <svg class="bi" width="30" height="24">
+                    <use xlink:href="#bootstrap"></use>
+                </svg>
+            </a>
+            <span class="mb-3 mb-md-0 text-muted">© 2022 Ashz, Inc</span>
+        </div>
+
+        <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
+            <li class="ms-3"><a class="text-muted" href="#"><svg class="bi" width="24" height="24">
+                        <use xlink:href="#twitter"></use>
+                    </svg></a></li>
+            <li class="ms-3"><a class="text-muted" href="#"><svg class="bi" width="24" height="24">
+                        <use xlink:href="#instagram"></use>
+                    </svg></a></li>
+            <li class="ms-3"><a class="text-muted" href="#"><svg class="bi" width="24" height="24">
+                        <use xlink:href="#facebook"></use>
+                    </svg></a></li>
+        </ul>
+    </footer>
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8"
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"
+        integrity="sha384-uO3SXW5IuS1ZpFPKugNNWqTZRRglnUJK6UAZ/gxOX80nxEkN9NcGZTftn6RzhGWE"
+        crossorigin="anonymous"></script>
+    <script>
+        feather.replace({ 'aria-hidden': 'true' });
+    </script>
+</body>
+
+</html>
